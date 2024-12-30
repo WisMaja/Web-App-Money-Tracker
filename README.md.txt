@@ -1,1 +1,0 @@
-Aplikacja do śledzenia wydatków i przychodów
