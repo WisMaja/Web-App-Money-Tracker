@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+import ExpenseForm from './components/ExpenseForm';
+import IncomeForm from './components/IncomeForm';
 
 function App() {
-  // Definicja stanu do przechowywania tekstu
-  const [message, setMessage] = useState('Witaj w aplikacji!');
+  const [balance, setBalance] = useState(1000); 
 
-  // Funkcja, która zmienia tekst po kliknięciu przycisku
-  const changeMessage = () => {
-    setMessage('Dziękujemy za kliknięcie!');
+  const updateBalance = (amount) => {
+    setBalance(prevBalance => prevBalance + amount);
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>{message}</h1>
-        <button onClick={changeMessage}>Kliknij mnie!</button>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Dashboard balance={balance} />} />
+        <Route path="/add-expense" element={<ExpenseForm updateBalance={updateBalance} />} />
+        <Route path="/add-income" element={<IncomeForm updateBalance={updateBalance} />} />
+      </Routes>
+    </Router>
   );
 }
 
