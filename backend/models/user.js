@@ -4,11 +4,25 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
-     * Metoda do definiowania asocjacji (relacji).
+     * Definiowanie asocjacji (relacji).
      */
     static associate(models) {
-      // W przyszłości połączymy użytkownika z tabelą wydatków
       User.hasMany(models.Expense, { foreignKey: 'userId', as: 'expenses' });
+      User.hasMany(models.Income, { foreignKey: 'userId', as: 'incomes' });
+    }
+
+    /**
+     * Metoda do aktualizacji salda użytkownika
+     */
+    async updateBalance() {
+      const incomes = await this.getIncomes();
+      const expenses = await this.getExpenses();
+
+      const totalIncome = incomes.reduce((sum, income) => sum + parseFloat(income.amount), 0);
+      const totalExpense = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+
+      this.balance = totalIncome - totalExpense;
+      await this.save();
     }
   }
 
@@ -19,19 +33,24 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
         validate: {
-          isEmail: true, // Sprawdza, czy to poprawny email
+          isEmail: true
         }
       },
       password: {
         type: DataTypes.STRING,
+        allowNull: false
+      },
+      balance: {
+        type: DataTypes.DECIMAL,
         allowNull: false,
+        defaultValue: 0.00
       }
     },
     {
       sequelize,
       modelName: 'User',
-      tableName: 'Users', // Nazwa tabeli w bazie
-      timestamps: true,   // Automatyczne kolumny createdAt i updatedAt
+      tableName: 'Users',
+      timestamps: true
     }
   );
 

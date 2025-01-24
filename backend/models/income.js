@@ -1,28 +1,20 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Income extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       Income.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
     }
   }
+
   Income.init(
     {
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id'
-        },
-        onDelete: 'CASCADE' // Jeśli użytkownik zostanie usunięty, usuwamy też jego przychody
+        references: { model: 'Users', key: 'id' },
+        onDelete: 'CASCADE'
       },
       source: {
         type: DataTypes.STRING,
@@ -41,8 +33,19 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: 'Income',
       tableName: 'Incomes',
-      timestamps: true, // Automatycznie dodaje createdAt i updatedAt
+      timestamps: true,
+      hooks: {
+        afterCreate: async (income, options) => {
+          const user = await income.getUser();
+          if (user) await user.updateBalance();
+        },
+        afterDestroy: async (income, options) => {
+          const user = await income.getUser();
+          if (user) await user.updateBalance();
+        }
+      }
     }
   );
+
   return Income;
 };
