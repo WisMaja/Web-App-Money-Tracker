@@ -2,7 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const sequelize = require('./config/database');
 
+const bodyParser = require('body-parser');
+const expenseRoutes = require('./routes/expenseRoutes');
+const userRoutes = require('./routes/userRoutes');
+const incomeRoutes = require('./routes/incomeRoutes');
+
 const app = express();
+app.use(bodyParser.json());
+
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/incomes', incomeRoutes);
+
 const PORT = process.env.PORT || 3000;
 
 app.get('/api/status', (req, res) => {
