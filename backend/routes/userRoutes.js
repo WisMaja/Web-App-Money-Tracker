@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUserById, createUser } = require('../controllers/userController');
+const { getUserById, createUser, deleteUserById } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -10,10 +10,6 @@ router.get('/:userId', getUserById);
 router.post('/', createUser);
 
 //Usuniecie użytkownika
-// router.delete('/userId', de)
-
-// router.get('/get', (res, req) => {
-//     getUserById
-// })
+router.delete('/:userId', deleteUserById);
 
 module.exports = router;

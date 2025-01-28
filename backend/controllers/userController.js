@@ -40,9 +40,25 @@ const createUser = async (req, res) =>{
   
 }
 
+const deleteUserById = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.userId);
 
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie znaleziony' });
+    }
 
+    // Usuwanie użytkownika
+    await user.destroy();
+
+    res.status(200).json({ message: 'Użytkownik został usunięty' });
+  } catch (error) {
+    console.error('Błąd podczas usuwania użytkownika:', error);
+    res.status(500).json({ error: 'Błąd podczas usuwania użytkownika' });
+  }
+};
 module.exports = {
   getUserById,
-  createUser
+  createUser,
+  deleteUserById
 };
