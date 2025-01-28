@@ -17,6 +17,32 @@ const getUserById = async (req, res) => {
   }
 };
 
+const createUser = async (req, res) =>{
+  try{
+    const {email, password} = req.body;
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Użytkownik już istnieje' });
+    }
+
+    // Tworzenie użytkownika
+    const newUser = await User.create({
+      email,
+      password: password,
+      balance: 0.00
+    });
+    res.status(201).json({ message: 'Użytkownik utworzony!', userId: newUser.id });
+  } catch (error) {
+    console.error('Błąd podczas tworzenia użytkownika:', error);
+    res.status(500).json({ error: 'Błąd serwera' });
+  }
+  
+}
+
+
+
 module.exports = {
-  getUserById
+  getUserById,
+  createUser
 };
