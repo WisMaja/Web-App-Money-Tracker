@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
@@ -12,6 +10,18 @@ services:
     depends_on:
       - db
     restart: always
+    
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:3000"  # Mapowanie portów (zewnętrzny 3001 -> wewnętrzny 3000)
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
 
   db:
     image: postgres:15
