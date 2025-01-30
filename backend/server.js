@@ -1,13 +1,16 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors'); 
 const sequelize = require('./config/database');
-
 const bodyParser = require('body-parser');
+
 const expenseRoutes = require('./routes/expenseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const incomeRoutes = require('./routes/incomeRoutes');
 
 const app = express();
+
+app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/expenses', expenseRoutes);
