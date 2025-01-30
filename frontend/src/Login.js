@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-function Login() {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogin = async (e) => {
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+    }
+  }, [location]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
@@ -31,31 +39,29 @@ function Login() {
     } catch (error) {
       setError(error.message);
     }
+
   };
 
   return (
     <div>
       <h2>Logowanie</h2>
+      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Hasło"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email:</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div>
+          <label>Hasło:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
         <button type="submit">Zaloguj się</button>
       </form>
+      <p>Nie masz konta?</p>
+      <button onClick={() => navigate('/register')}>Załóż konto</button>
     </div>
   );
-}
+};
 
 export default Login;

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const SECRET_KEY = "your_secret_key";
 
+//LOGOWANIE
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -31,6 +32,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+//Wyszukaj Uzywtkownika
 const getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.userId);
@@ -45,6 +47,7 @@ const getUserById = async (req, res) => {
   }
 };
 
+//Rejestracja
 const createUser = async (req, res) => {
   try {
     const { email, password } = req.body;

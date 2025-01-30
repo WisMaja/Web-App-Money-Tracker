@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function Home() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const userId = location.state?.userId;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -13,13 +15,13 @@ function Home() {
       return;
     }
 
-    fetch('http://localhost:3000/api/status', {
+    fetch(`http://localhost:3000/api/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(response => response.json())
-      .then(data => setMessage(data.message))
+      .then(data => setMessage(`Witaj, ${data.name}!`))
       .catch(() => navigate('/login'));
-  }, [navigate]);
+  }, [navigate, userId]);
 
   return (
     <div>
