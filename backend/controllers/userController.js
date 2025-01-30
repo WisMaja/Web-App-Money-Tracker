@@ -1,8 +1,36 @@
 const { User } = require('../models');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-/**
- * Pobranie danych użytkownika na podstawie `userId`
- */
+const SECRET_KEY = "your_secret_key";
+
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Sprawdzenie, czy użytkownik istnieje
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: 'Nieprawidłowy email lub hasło' });
+    }
+
+    // Sprawdzenie hasła
+    const isMatch = await bcrypt.compare(password, user.password);
+  
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Nieprawidłowy email lub hasło' });
+    }
+
+    // Tworzenie tokena JWT
+    const token = jwt.sign({ userId: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+
+    res.json({ message: 'Zalogowano pomyślnie', token });
+  } catch (error) {
+    console.error('Błąd logowania:', error);
+    res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
 const getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.userId);
@@ -17,28 +45,30 @@ const getUserById = async (req, res) => {
   }
 };
 
-const createUser = async (req, res) =>{
-  try{
-    const {email, password} = req.body;
+const createUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: 'Użytkownik już istnieje' });
     }
 
-    // Tworzenie użytkownika
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await User.create({
       email,
-      password: password,
+      password: hashedPassword,
       balance: 0.00
     });
+
     res.status(201).json({ message: 'Użytkownik utworzony!', userId: newUser.id });
   } catch (error) {
     console.error('Błąd podczas tworzenia użytkownika:', error);
     res.status(500).json({ error: 'Błąd serwera' });
   }
-  
-}
+};
+
 
 const deleteUserById = async (req, res) => {
   try {
@@ -60,5 +90,6 @@ const deleteUserById = async (req, res) => {
 module.exports = {
   getUserById,
   createUser,
-  deleteUserById
+  deleteUserById,
+  loginUser
 };
