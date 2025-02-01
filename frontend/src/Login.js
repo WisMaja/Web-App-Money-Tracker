@@ -42,11 +42,23 @@ const Login = () => {
 
   };
 
-
-  const handleGuestLogin = () => {
-    localStorage.setItem('guest', 'true');
-    navigate('/home', { state: { userId: 'guest' } });
+  const handleGuestLogin = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/users/guest'); // Pobiera ID Gościa z bazy
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error('Nie udało się zalogować jako gość');
+      }
+  
+      localStorage.setItem('userId', data.id); // Zapisujemy ID użytkownika Gość
+      navigate('/home', { state: { userId: data.id } });
+  
+    } catch (error) {
+      console.error('Błąd logowania jako gość:', error);
+    }
   };
+  
 
   return (
     <div>

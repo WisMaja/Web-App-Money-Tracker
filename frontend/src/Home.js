@@ -25,7 +25,7 @@ function Home() {
 
   return (
     <div>
-      <h2>Panel użytkownika</h2>
+      <h2>Panel użytkownika {userId}</h2>
       <p>{message}</p>
       <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>Wyloguj</button>
     </div>

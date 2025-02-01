@@ -90,9 +90,28 @@ const deleteUserById = async (req, res) => {
     res.status(500).json({ error: 'Błąd podczas usuwania użytkownika' });
   }
 };
+
+
+const getGuestUser = async (req, res) => {
+  try {
+    // Szukamy użytkownika o nicku "Gość"
+    const guestUser = await User.findOne({ where: { nickName: 'Gość' } });
+
+    if (!guestUser) {
+      return res.status(404).json({ error: 'Użytkownik Gość nie istnieje' });
+    }
+
+    // Zwracamy ID, nickname oraz balans użytkownika Gość
+    res.json({ id: guestUser.id, nickname: guestUser.nickname, balance: guestUser.balance });
+  } catch (error) {
+    res.status(500).json({ error: 'Błąd podczas pobierania użytkownika Gość' });
+  }
+};
+
 module.exports = {
   getUserById,
   createUser,
   deleteUserById,
-  loginUser
+  loginUser,
+  getGuestUser
 };
