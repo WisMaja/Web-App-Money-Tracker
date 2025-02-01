@@ -10,16 +10,11 @@ function Home() {
   useEffect(() => {
     const token = localStorage.getItem('token');
 
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
     fetch(`http://localhost:3000/api/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(response => response.json())
-      .then(data => setMessage(`Witaj, ${data.name}!`))
+      .then(data => setMessage(`Witaj, ${data.nickName}!`))
       .catch(() => navigate('/login'));
   }, [navigate, userId]);
 

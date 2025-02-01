@@ -102,7 +102,7 @@ const getGuestUser = async (req, res) => {
     }
 
     // Zwracamy ID, nickname oraz balans użytkownika Gość
-    res.json({ id: guestUser.id, nickname: guestUser.nickname, balance: guestUser.balance });
+    res.json({ id: guestUser.id, nickname: guestUser.nickName, balance: guestUser.balance });
   } catch (error) {
     res.status(500).json({ error: 'Błąd podczas pobierania użytkownika Gość' });
   }
