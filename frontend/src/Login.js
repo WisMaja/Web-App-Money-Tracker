@@ -35,11 +35,17 @@ const Login = () => {
       }
 
       localStorage.setItem('token', data.token);
-      navigate('/home'); // Przekierowanie do panelu użytkownika
+      navigate('/home', { state: { userId: data.userId } }); // Przekazanie userId do Home
     } catch (error) {
       setError(error.message);
     }
 
+  };
+
+
+  const handleGuestLogin = () => {
+    localStorage.setItem('guest', 'true');
+    navigate('/home', { state: { userId: 'guest' } });
   };
 
   return (
@@ -60,6 +66,7 @@ const Login = () => {
       </form>
       <p>Nie masz konta?</p>
       <button onClick={() => navigate('/register')}>Załóż konto</button>
+      <button onClick={handleGuestLogin}>Zaloguj jako gość</button>
     </div>
   );
 };
