@@ -47,6 +47,23 @@ const getUserById = async (req, res) => {
   }
 };
 
+//Wyszukaj Uzywtkownika
+const getUserBalanceById = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie znaleziony' });
+    }
+
+    res.json(user.balance);
+  } catch (error) {
+    res.status(500).json({ error: 'Błąd podczas pobierania użytkownika' });
+  }
+};
+
+
+
 //Rejestracja
 const createUser = async (req, res) => {
   try {
@@ -113,5 +130,6 @@ module.exports = {
   createUser,
   deleteUserById,
   loginUser,
-  getGuestUser
+  getGuestUser,
+  getUserBalanceById
 };
