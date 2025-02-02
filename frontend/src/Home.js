@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import './Home.css';
 
 function Home() {
   const [message, setMessage] = useState('');
@@ -11,7 +12,7 @@ function Home() {
   //top bedzie potem na stronie Expenses.js
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
-  const [date, setDate] = useState('');
+  const [expenceDate, setExpenceDate] = useState('');
   const [expenses, setExpenses] = useState([]);
 
   //to jest do Income
@@ -19,6 +20,16 @@ function Home() {
   const [incomeAmount, setIncomeAmount] = useState('');
   const [incomeDate, setIncomeDate] = useState('');
   const [incomes, setIncomes] = useState([]);
+
+  //formatowanie daty
+  const formatDate = (isoDate) =>
+  {
+    if (!isoDate) return '';
+
+    const date = new Date(isoDate);
+    return new
+    Intl.DateTimeFormat('pl-PL').format( date);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -33,7 +44,7 @@ function Home() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(response => response.json())
-      .then(data => setMessage(`Witaj, ${data.nickName}!`))
+      .then(data => setMessage(`${data.nickName}`))
       .catch(() => navigate('/login'));
 
     // Pobieranie balansu użytkownika
@@ -72,7 +83,7 @@ function Home() {
         userId,
         category,
         amount: parseFloat(amount),
-        date,
+        date: expenceDate,
       };
   
       fetch('http://localhost:3000/api/expenses/', {
@@ -87,7 +98,7 @@ function Home() {
         .then(() => {
           setCategory('');
           setAmount('');
-          setDate('');
+          setExpenceDate('');
           refreshData();})
         .catch(() => console.error('Błąd dodawania wydatku'));
     };
@@ -147,14 +158,17 @@ function Home() {
     };
 
     return (
-      <div>
-        <h2>Panel użytkownika {userId}</h2>
-        <p>{message}</p>
-        <p>Aktualny balans: {balance !== null ? `${balance} PLN` : 'Ładowanie...'}</p>
-  
+      <div className = "window">
+        <h2>Panel użytkownika  {message}</h2>
+        <h1>Aktualny balans: {balance !== null ? `${balance} zł` : 'Ładowanie...'}</h1>
+        <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>Wyloguj</button>
+      <div className = "container">
         {/* Formularz dodawania wydatku */}
+        <div className="expenses">
         <h3>Dodaj wydatek</h3>
         <form onSubmit={handleAddExpense}>
+          <div>
+          Nazwa: 
           <input
             type="text"
             placeholder="Kategoria"
@@ -162,6 +176,9 @@ function Home() {
             onChange={(e) => setCategory(e.target.value)}
             required
           />
+          </div>
+          <div>
+          Kwota: 
           <input
             type="number"
             placeholder="Kwota"
@@ -169,18 +186,39 @@ function Home() {
             onChange={(e) => setAmount(e.target.value)}
             required
           />
+          </div>
+          <div>
+          Data: 
           <input
             type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            value={expenceDate}
+            onChange={(e) => setExpenceDate(e.target.value)}
             required
           />
-          <button type="submit">Dodaj wydatek</button>
+          </div>
+          <button type="submit" className="SubmitButton">Dodaj wydatek</button>
         </form>
+
+        {/* Lista wydatków */}
+        <h3>Twoje wydatki</h3>
+        <ul>
+          {expenses.map((expense) => (
+            <li key={expense.id}>
+              {expense.category} | {expense.amount} zł | {formatDate(expense.date)} 
+              <button>Edytuj</button> 
+              <button>Usuń</button>
+            </li>
+          ))}
+        </ul>
   
+        </div>
+
+        <div className = "incomes">
         {/* Formularz dodawania przychodu */}
         <h3>Dodaj przychód</h3>
         <form onSubmit={handleAddIncome}>
+          <div>
+          Nazwa: 
           <input
             type="text"
             placeholder="Źródło"
@@ -188,43 +226,42 @@ function Home() {
             onChange={(e) => setIncomeSource(e.target.value)}
             required
           />
-          <input
+          </div>
+          <div>
+            Kwota: 
+            <input
             type="number"
             placeholder="Kwota"
             value={incomeAmount}
             onChange={(e) => setIncomeAmount(e.target.value)}
             required
           />
-          <input
+          </div>
+          <div>
+            Data: 
+            <input
             type="date"
             value={incomeDate}
             onChange={(e) => setIncomeDate(e.target.value)}
             required
           />
-          <button type="submit">Dodaj przychód</button>
+          </div>
+          <button type="submit" className="SubmitButton">Dodaj przychód</button>
         </form>
-  
-        {/* Lista wydatków */}
-        <h3>Twoje wydatki</h3>
-        <ul>
-          {expenses.map((expense) => (
-            <li key={expense.id}>
-              {expense.date} - {expense.category}: {expense.amount} PLN
-            </li>
-          ))}
-        </ul>
   
         {/* Lista przychodów */}
         <h3>Twoje przychody</h3>
         <ul>
           {incomes.map((income) => (
             <li key={income.id}>
-              {income.date} - {income.source}: {income.amount} PLN
+              {income.source} | {income.amount} zł | {formatDate(income.date)} 
+              <button>Edytuj</button> 
+              <button>Usuń</button>
             </li>
           ))}
         </ul>
-  
-        <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>Wyloguj</button>
+        </div>
+      </div>
       </div>
     );
   }
