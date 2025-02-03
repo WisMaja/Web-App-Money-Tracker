@@ -74,11 +74,11 @@ const Login = () => {
           <label>Hasło:</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-        <button type="submit">Zaloguj się</button>
+        <button type="submit" className="SubmitButton" onSubmit={handleSubmit}>Zaloguj się</button>
       </form>
       <p>Nie masz konta?</p>
-      <button onClick={() => navigate('/register')}>Załóż konto</button>
-      <button onClick={handleGuestLogin}>Zaloguj jako gość</button>
+      <button onClick={() => navigate('/register')} className="SubmitButton">Załóż konto</button>
+      <button onClick={handleGuestLogin} className="SubmitButton">Zaloguj jako gość</button>
     </div>
   );
 };

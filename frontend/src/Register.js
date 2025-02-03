@@ -2,11 +2,27 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const [nickName, setNickName] = useState('');
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [startingBalance, setStartingBalance] = useState(0);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+
+  const requestBody = {
+    nickName: nickName,
+    password : password,
+    email: email.trim() === '' ? null : email,
+    firstName: firstName.trim() === '' ? null : firstName,
+    lastName: lastName.trim() === '' ? null : lastName,
+    balance: startingBalance
+  };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +38,7 @@ const Register = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(requestBody)
       });
       
       const data = await response.json();
@@ -39,12 +55,16 @@ const Register = () => {
 
   return (
     <div>
-      <h2>Rejestracja</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
+    <h2>Rejestracja</h2>
+    {error && <p style={{ color: 'red' }}>{error}</p>}
+    <form onSubmit={handleSubmit}>
+    <div className="container">
+
+      <div className="Obowiazkowe">
+        <h2>Obowiązkowe pola</h2>
         <div>
-          <label>Email:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label>Login</label>
+          <input type="text" value={nickName} onChange={(e) => setNickName(e.target.value)} required/>
         </div>
         <div>
           <label>Hasło:</label>
@@ -54,9 +74,39 @@ const Register = () => {
           <label>Potwierdź hasło:</label>
           <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
         </div>
-        <button type="submit">Zarejestruj się</button>
-      </form>
+        </div>
+      
+        <div className= "Nieobowiazkowe">
+        <h2>Nieobowiazkowe pola</h2>
+        <div>
+          <label>Email:</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div>
+          <label>Imie</label>
+          <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}/>
+        </div>
+        <div>
+          <label>Nazwisko</label>
+          <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}/>
+        </div>
+        <div>
+          <label>Balans na start:</label>
+          <input 
+            type="number" 
+            value={startingBalance} 
+            onChange={(e) => setStartingBalance(Number(e.target.value))} 
+            required 
+          />
+        </div>
+        </div>
+
     </div>
+    <br/>
+    <button type="submit" className="SubmitButton" onSubmit={handleSubmit}>Zarejestruj się</button>
+    </form>
+    </div>
+
   );
 };
 
