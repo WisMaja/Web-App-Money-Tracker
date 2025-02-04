@@ -7,25 +7,25 @@ const SECRET_KEY = "your_secret_key";
 //LOGOWANIE
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { nickName, password } = req.body;
 
     // Sprawdzenie, czy użytkownik istnieje
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { nickName } });
     if (!user) {
-      return res.status(401).json({ error: 'Nieprawidłowy email lub hasło' });
+      return res.status(401).json({ error: 'Nieprawidłowy login lub hasło' });
     }
 
     // Sprawdzenie hasła
     const isMatch = await bcrypt.compare(password, user.password);
   
     if (!isMatch) {
-      return res.status(401).json({ error: 'Nieprawidłowy email lub hasło' });
+      return res.status(401).json({ error: 'Nieprawidłowy login lub hasło' });
     }
 
     // Tworzenie tokena JWT
-    const token = jwt.sign({ userId: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, nickName: user.nickName }, SECRET_KEY, { expiresIn: '1h' });
 
-    res.json({ message: 'Zalogowano pomyślnie', token });
+    res.json({ message: 'Zalogowano pomyślnie', token, userId: user.id });
   } catch (error) {
     console.error('Błąd logowania:', error);
     res.status(500).json({ error: 'Błąd serwera' });
@@ -67,9 +67,9 @@ const getUserBalanceById = async (req, res) => {
 //Rejestracja
 const createUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { nickName, password, email, firstName, lastName, balance } = req.body;
 
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({ where: { nickName } });
     if (existingUser) {
       return res.status(400).json({ error: 'Użytkownik już istnieje' });
     }
@@ -77,9 +77,12 @@ const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
-      email,
+      nickName,
       password: hashedPassword,
-      balance: 0.00
+      email,
+      firstName,
+      lastName,
+      balance
     });
 
     res.status(201).json({ message: 'Użytkownik utworzony!', userId: newUser.id });
