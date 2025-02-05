@@ -8,8 +8,10 @@ RUN npm install
 
 COPY . .
 
+
 EXPOSE 3000
 
 #CMD ["node", "server.js"]
 # CMD ["sh", "-c", "npx sequelize db:migrate && node server.js"]
-CMD ["sh", "-c", "npx sequelize db:migrate:status | grep 'down' && npx sequelize db:migrate; node server.js"]
+#CMD ["sh", "-c", "npx sequelize db:migrate:status | grep 'down' && npx sequelize db:migrate; node server.js"]
+CMD ["sh", "-c", "until npx sequelize db:migrate; do echo 'Waiting for DB...'; sleep 3; done; node server.js"]
