@@ -15,6 +15,12 @@ function Home() {
   const [expenceDate, setExpenceDate] = useState('');
   const [expenses, setExpenses] = useState([]);
 
+  //edytowanie expenses
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
+  const [editedCategory, setEditedCategory] = useState('');
+  const [editedAmount, setEditedAmount] = useState('');
+  const [editedDate, setEditedDate] = useState('');
+
   //to jest do Income
   const [incomeSource, setIncomeSource] = useState('');
   const [incomeAmount, setIncomeAmount] = useState('');
@@ -132,6 +138,66 @@ function Home() {
         .catch(() => console.error('Błąd dodawania przychodu'));
     };
 
+    //przyciski przychodów
+    
+    //Przyciski wydatków
+
+    const handleDeleteExpense = (expenseId) => {
+      const token = localStorage.getItem('token');
+    
+      fetch(`http://localhost:3000/api/expenses/${expenseId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Błąd podczas usuwania wydatku');
+          }
+          return response.json();
+        })
+        .then(() => {
+          // Aktualizujemy stan po usunięciu wydatku
+          setExpenses(expenses.filter(expense => expense.id !== expenseId));
+          refreshData();
+        })
+        .catch(() => console.error('Błąd podczas usuwania wydatku'));
+    };
+    
+    const handleEditExpense = (expense) => {
+      setEditingExpenseId(expense.id);
+      setEditedCategory(expense.category);
+      setEditedAmount(expense.amount);
+      setEditedDate(expense.date);
+    };
+    
+    const handleSaveExpense = (expenseId) => {
+      const token = localStorage.getItem('token');
+    
+      const updatedExpense = {
+        category: editedCategory,
+        amount: parseFloat(editedAmount),
+        date: editedDate,
+      };
+    
+      fetch(`http://localhost:3000/api/expenses/${expenseId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedExpense),
+      })
+        .then(response => response.json())
+        .then(() => {
+          setEditingExpenseId(null); // Zakończenie edycji
+          refreshData(); // Odświeżenie listy wydatków
+        })
+        .catch(() => console.error('Błąd podczas edytowania wydatku'));
+    };
+    
+
     const refreshData = () => {
       const token = localStorage.getItem('token');
   
@@ -204,10 +270,34 @@ function Home() {
         <ul>
           {expenses.map((expense) => (
             <li key={expense.id}>
-              {expense.category} | {expense.amount} zł | {formatDate(expense.date)} 
-              <button>Edytuj</button> 
-              <button>Usuń</button>
-            </li>
+            {editingExpenseId === expense.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editedCategory}
+                  onChange={(e) => setEditedCategory(e.target.value)}
+                />
+                <input
+                  type="number"
+                  value={editedAmount}
+                  onChange={(e) => setEditedAmount(e.target.value)}
+                />
+                <input
+                  type="date"
+                  value={editedDate}
+                  onChange={(e) => setEditedDate(e.target.value)}
+                />
+                <button onClick={() => handleSaveExpense(expense.id)}>Zapisz</button>
+                <button onClick={() => setEditingExpenseId(null)}>Anuluj</button>
+              </>
+            ) : (
+              <>
+                {expense.category} | {expense.amount} zł | {formatDate(expense.date)}
+                <button onClick={() => handleEditExpense(expense)}>Edytuj</button>
+                <button onClick={() => handleDeleteExpense(expense.id)}>Usuń</button>
+              </>
+            )}
+          </li>
           ))}
         </ul>
   
