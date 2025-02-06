@@ -21,6 +21,11 @@ function Home() {
   const [editedAmount, setEditedAmount] = useState('');
   const [editedDate, setEditedDate] = useState('');
 
+  //edytowanie income
+  const [editingIncomeId, setEditingIncomeId] = useState(null);
+  const [editedSource, setEditedSource] = useState('');
+  const [editedAmountIncome, setEditedAmountIncome] = useState('');
+  const [editedDateIncome, setEditedDateIncome] = useState('');
   //to jest do Income
   const [incomeSource, setIncomeSource] = useState('');
   const [incomeAmount, setIncomeAmount] = useState('');
@@ -140,6 +145,56 @@ function Home() {
 
     //przyciski przychodów
     
+    const handleDeleteIncome = (incomeId) => {
+      const token = localStorage.getItem('token');
+      fetch(`http://localhost:3000/api/incomes/${incomeId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Błąd podczas usuwania przychodu');
+          }
+          return response.json();
+        })
+        .then(() => {
+          setIncomes(incomes.filter(income => income.id !== incomeId));
+          refreshData();
+        })
+        .catch(() => console.error('Błąd podczas usuwania przychodu'));
+    };
+
+    const handleEditIncome = (income) => {
+      setEditingIncomeId(income.id);
+      setEditedSource(income.source);
+      setEditedAmountIncome(income.amount);
+      setEditedDateIncome(income.date);
+    };
+  
+    const handleSaveIncome = (incomeId) => {
+      const token = localStorage.getItem('token');
+      const updatedIncome = {
+        source: editedSource,
+        amount: parseFloat(editedAmountIncome),
+        date: editedDateIncome,
+      };
+  
+      fetch(`http://localhost:3000/api/incomes/${incomeId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedIncome),
+      })
+        .then(response => response.json())
+        .then(() => {
+          setEditingIncomeId(null);
+          refreshData();
+        })
+        .catch(() => console.error('Błąd podczas edytowania przychodu'));
+    };
+
     //Przyciski wydatków
 
     const handleDeleteExpense = (expenseId) => {
@@ -341,15 +396,39 @@ function Home() {
   
         {/* Lista przychodów */}
         <h3>Twoje przychody</h3>
-        <ul>
-          {incomes.map((income) => (
-            <li key={income.id}>
-              {income.source} | {income.amount} zł | {formatDate(income.date)} 
-              <button>Edytuj</button> 
-              <button>Usuń</button>
-            </li>
-          ))}
-        </ul>
+<ul>
+        {incomes.map((income) => (
+          <li key={income.id}>
+            {editingIncomeId === income.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editedSource}
+                  onChange={(e) => setEditedSource(e.target.value)}
+                />
+                <input
+                  type="number"
+                  value={editedAmountIncome}
+                  onChange={(e) => setEditedAmountIncome(e.target.value)}
+                />
+                <input
+                  type="date"
+                  value={editedDateIncome}
+                  onChange={(e) => setEditedDateIncome(e.target.value)}
+                />
+                <button onClick={() => handleSaveIncome(income.id)}>Zapisz</button>
+                <button onClick={() => setEditingIncomeId(null)}>Anuluj</button>
+              </>
+            ) : (
+              <>
+                {income.source} | {income.amount} zł | {formatDate(income.date)}
+                <button onClick={() => handleEditIncome(income)}>Edytuj</button>
+                <button onClick={() => handleDeleteIncome(income.id)}>Usuń</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
         </div>
       </div>
       </div>
